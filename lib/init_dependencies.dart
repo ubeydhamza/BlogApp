@@ -1,11 +1,13 @@
 import 'package:blog_app_project/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:blog_app_project/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:blog_app_project/features/auth/domain/repository/auth_repository.dart';
+import 'package:blog_app_project/features/auth/domain/usecases/current_user.dart';
+import 'package:blog_app_project/features/auth/domain/usecases/user_sign_in.dart';
 import 'package:blog_app_project/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:blog_app_project/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'core/secrets/app_secrets.dart';
+import 'package:blog_app_project/core/secrets/app_secrets.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -35,9 +37,21 @@ void _initAuth() {
       serviceLocator(),
     ),
   );
+  serviceLocator.registerFactory(
+    () => UserSignIn(
+      serviceLocator(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => CurrentUser(
+      serviceLocator(),
+    ),
+  );
   serviceLocator.registerLazySingleton(
     () => AuthBloc(
       userSignUp: serviceLocator(),
+      userSignIn: serviceLocator(),
+      curentUser: serviceLocator(),
     ),
   );
 }

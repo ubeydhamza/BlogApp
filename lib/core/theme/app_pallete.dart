@@ -10,4 +10,12 @@ class AppPallete {
   static const Color greyColor = Colors.grey;
   static const Color errorColor = Colors.redAccent;
   static const Color transparentColor = Colors.transparent;
+  static const Color ubeyd1 = Color.fromRGBO(225, 127, 71, 1);
+  static const Color ubeyd2 = Color.fromRGBO(225, 0, 114, 1);
+  static const Color ubeydGrey = Color.fromRGBO(89, 89, 89, 1);
+  static const Color ubeydWhite = Color.fromRGBO(242, 242, 242, 1);
+  static const Color ubeydBlack = Color.fromRGBO(64, 64, 64, 1);
+  static const Color ubeyd3 = Color.fromRGBO(135, 87, 92, 1);
+  static const Color ubeyd4 = Color.fromRGBO(209, 223, 187, 1);
+  static const Color ubeyd5 = Color.fromRGBO(240, 235, 229, 1);
 }

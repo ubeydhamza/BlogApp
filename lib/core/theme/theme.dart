@@ -14,10 +14,18 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: AppPallete.backgroundColor,
     ),
+    chipTheme: const ChipThemeData(
+      color: WidgetStatePropertyAll(
+        AppPallete.backgroundColor,
+      ),
+      side: BorderSide.none,
+    ),
     inputDecorationTheme: InputDecorationTheme(
       contentPadding: const EdgeInsets.all(27.0),
+      border: _border(),
       enabledBorder: _border(),
       focusedBorder: _border(AppPallete.gradient1),
+      errorBorder: _border(AppPallete.errorColor),
     ),
   );
 }

@@ -1,9 +1,11 @@
 import 'package:blog_app_project/core/common/widgets/loader.dart';
 import 'package:blog_app_project/core/theme/app_pallete.dart';
 import 'package:blog_app_project/core/utils/show_snackbar.dart';
+import 'package:blog_app_project/features/auth/presentation/pages/login_page.dart';
 import 'package:blog_app_project/features/blog/presantation/bloc/blog_bloc.dart';
 import 'package:blog_app_project/features/blog/presantation/pages/add_new_blog_page.dart';
 import 'package:blog_app_project/features/blog/presantation/widgets/blog_card.dart';
+import 'package:blog_app_project/features/profile/presantation/pages/profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,15 +30,48 @@ class _BlogPageState extends State<BlogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Blog App Finitoo'), actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.push(context, AddNewBlogPage.route());
-          },
-          icon: const Icon(
-            CupertinoIcons.add_circled,
-          ),
+      appBar:
+          AppBar(centerTitle: true, title: const Text('Blog App'), actions: [
+        PopupMenuButton(
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const ProfilePage(),
+                  ),
+                );
+              },
+              child: const Text('Profile'),
+            ),
+            PopupMenuItem(
+              onTap: () {
+                Navigator.push(context, AddNewBlogPage.route());
+              },
+              child: const Text('Add Blogs'),
+            ),
+            PopupMenuItem(
+              onTap: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const LoginPage(),
+                    ),
+                    (route) => false);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
         ),
+        // IconButton(
+        //   onPressed: () {
+        //     Navigator.push(context, AddNewBlogPage.route());
+        //   },
+        //   icon: const Icon(
+        //     CupertinoIcons.add_circled,
+        //   ),
+        // ),
       ]),
       body: BlocConsumer<BlogBloc, BlogState>(
         listener: (context, state) {

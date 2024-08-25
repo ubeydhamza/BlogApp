@@ -1,3 +1,7 @@
+import 'package:blog_app_project/core/theme/app_pallete.dart';
+import 'package:blog_app_project/features/blog/data/models/blog_model.dart';
+import 'package:blog_app_project/features/blog/presantation/pages/edit_blog_page.dart';
+import 'package:blog_app_project/features/blog/presantation/widgets/blog_card.dart';
 import 'package:blog_app_project/features/profile/presantation/widgets/profile_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,12 +19,14 @@ class _ProfilePageState extends State<ProfilePage> {
   final supabase = Supabase.instance.client;
   late final User user;
   String? userName;
+  List<BlogModel> userBlogs = [];
 
   @override
   void initState() {
     super.initState();
     user = supabase.auth.currentUser!;
     _fetchUserName();
+    _fetchUserBlogs();
   }
 
   Future<void> _fetchUserName() async {
@@ -35,6 +41,60 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<void> _fetchUserBlogs() async {
+    final response = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('poster_id',
+            user.id) // 'author_id' kullanıcının bloglarını belirler
+        .order('updated_at', ascending: false);
+
+    setState(() {
+      userBlogs = (response as List<dynamic>)
+          .map((data) => BlogModel.fromjson(data as Map<String, dynamic>))
+          .toList();
+    });
+  }
+
+  Future<void> _deleteBlog(String blogId) async {
+    await supabase.from('blogs').delete().eq('id', blogId);
+
+    // Silme işlemi sonrası blog listesini yeniden yükleyin
+    setState(() {
+      userBlogs.removeWhere((blog) => blog.id == blogId);
+    });
+  }
+
+  Future<void> _showDeleteConfirmationDialog(String blogId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Silme Onayı'),
+          content: const Text('Bu blogu silmek istediğinizden emin misiniz?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('İptal'),
+              onPressed: () {
+                Navigator.of(context).pop(false); // İptal: false döner
+              },
+            ),
+            TextButton(
+              child: const Text('Sil'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Sil: true döner
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _deleteBlog(blogId);
+    }
+  }
+
   @override
   void dispose() {
     _nameChangeController.dispose();
@@ -43,6 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Profile'),
@@ -74,12 +135,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: const TextStyle(fontSize: 25),
                       ),
                 IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _editMode = !_editMode;
-                      });
-                    },
-                    icon: const Icon(Icons.edit)),
+                  onPressed: () {
+                    setState(() {
+                      _editMode = !_editMode;
+                    });
+                  },
+                  icon: const Icon(Icons.edit),
+                  color: AppPallete.gradient3,
+                ),
               ],
             ),
             if (_editMode == true)
@@ -95,6 +158,51 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: const Text('Degistir'),
               ),
+            const SizedBox(height: 20),
+            Expanded(
+                child: ListView.builder(
+                    itemCount: userBlogs.length,
+                    itemBuilder: (context, index) {
+                      final blog = userBlogs[index];
+                      return SizedBox(
+                        height: 200,
+                        width: screenWidth,
+                        child: Stack(children: [
+                          BlogCard(
+                            blog: blog,
+                            color: AppPallete.ubeyd5,
+                          ),
+                          Positioned(
+                              top: 10,
+                              right: 8,
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: AppPallete.gradient3),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditBlogPage(blogId: blog.id),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: AppPallete.gradient1),
+                                    onPressed: () async {
+                                      await _showDeleteConfirmationDialog(
+                                          blog.id);
+                                    },
+                                  ),
+                                ],
+                              ))
+                        ]),
+                      );
+                    })),
           ],
         ));
   }

@@ -18,4 +18,6 @@ class Blog {
     required this.updatedAt,
     this.posterName,
   });
+
+  static fromMap(Map<String, dynamic> data) {}
 }
